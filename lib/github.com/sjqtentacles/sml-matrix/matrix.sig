@@ -98,4 +98,59 @@ sig
      is n x n upper-triangular, and q * r = A. Raises Dim if m < n, Singular
      if the columns are linearly dependent. *)
   val qr : t -> {q : t, r : t}
+
+  (* --- scalar summaries and norms --- *)
+
+  (* Sum of the diagonal of a square matrix. Raises Dim if not square. *)
+  val trace : t -> real
+
+  (* Maximum absolute column sum (the induced 1-norm). *)
+  val norm1 : t -> real
+  (* Maximum absolute row sum (the induced infinity-norm). *)
+  val normInf : t -> real
+  (* Frobenius norm: the square root of the sum of squared entries. *)
+  val normFro : t -> real
+  (* Spectral norm (the induced 2-norm) = the largest singular value. *)
+  val norm2 : t -> real
+
+  (* 2-norm condition number: the ratio of the largest to the smallest
+     singular value. Real.posInf for a (numerically) rank-deficient matrix. *)
+  val cond : t -> real
+
+  (* --- further decompositions --- *)
+
+  (* Cholesky factor of a symmetric positive-definite matrix: the lower-
+     triangular L (with positive diagonal) such that A = L * Lᵀ. Raises Dim if
+     A is not square, Singular if A is not (numerically) positive definite.
+     Only the lower triangle of A is read. *)
+  val cholesky : t -> t
+
+  (* Singular value decomposition via one-sided Jacobi rotations. For an m x n
+     matrix and k = min (m, n), returns {u, s, vt} where u is m x k with
+     orthonormal columns, s is a length-k array of singular values in
+     descending order, and vt is the k x n matrix Vᵀ, so that
+     A = u * diag(s) * vt. *)
+  val svd : t -> {u : t, s : real array, vt : t}
+
+  (* Symmetric eigendecomposition via cyclic (one-sided) Jacobi rotations. A
+     must be square and (numerically) symmetric. Returns {values, vectors}
+     where values holds the eigenvalues in ascending order and the columns of
+     vectors are the corresponding orthonormal eigenvectors, so that
+     A * vectors = vectors * diag(values). Raises Dim if A is not square or not
+     symmetric. *)
+  val eigSym : t -> {values : real array, vectors : t}
+
+  (* Least-squares solution of an overdetermined system: the x that minimises
+     ‖A x - b‖₂ for an m x n matrix A with m >= n and full column rank, solved
+     via QR. b is given as a list of length rows A; the result has length
+     cols A. Raises Dim on a shape mismatch, Singular if A is rank-deficient. *)
+  val lstsq : t -> real list -> real list
+
+  (* Moore-Penrose pseudoinverse (n x m) via the SVD; defined for any shape and
+     rank. Reduces to `inv` for a square invertible matrix. *)
+  val pinv : t -> t
+
+  (* Numerical rank: the number of singular values exceeding a tolerance scaled
+     by the largest singular value and the matrix dimensions. *)
+  val rank : t -> int
 end

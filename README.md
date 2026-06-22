@@ -5,7 +5,9 @@
 Dense real linear algebra for general `m x n` matrices in Standard ML. Where a
 graphics library fixes matrices at 2/3/4 dimensions, `sml-matrix` works with
 arbitrary shapes: construction, arithmetic, LU decomposition with partial
-pivoting, determinant, linear solves, inverse, and QR decomposition.
+pivoting, determinant, linear solves, inverse, QR decomposition, Cholesky,
+SVD, symmetric eigendecomposition, least squares, pseudoinverse, numerical
+rank, matrix norms, and condition number.
 
 ## Storage
 
@@ -53,9 +55,30 @@ val d   = Matrix.det a                 (* ~2.0                      *)
 val x   = Matrix.solve a [5.0, 11.0]   (* solve A x = b             *)
 val ai  = Matrix.inv a                 (* inverse                   *)
 val {q, r} = Matrix.qr a               (* Q orthonormal, R upper    *)
+
+(* SPD Cholesky, A = L * L^T *)
+val spd = Matrix.fromRows [[4.0, 12.0, ~16.0], [12.0, 37.0, ~43.0], [~16.0, ~43.0, 98.0]]
+val l   = Matrix.cholesky spd
+
+(* Singular value decomposition: A = u * diag(s) * vt *)
+val {u, s, vt} = Matrix.svd a
+
+(* Symmetric eigenvalues (ascending) and orthonormal eigenvectors *)
+val {values, vectors} = Matrix.eigSym (Matrix.fromRows [[2.0, 1.0], [1.0, 2.0]])
+
+(* Least squares for an overdetermined system, and the pseudoinverse *)
+val coeffs = Matrix.lstsq design b      (* min ||A x - b||_2 via QR *)
+val ap     = Matrix.pinv a              (* Moore-Penrose pseudoinverse *)
+
+(* Norms, condition number, rank, trace *)
+val n2 = Matrix.norm2 a                 (* spectral norm *)
+val k  = Matrix.cond a                  (* 2-norm condition number *)
+val rk = Matrix.rank a                  (* numerical rank *)
+val tr = Matrix.trace a                 (* sum of the diagonal *)
 ```
 
-Dimension errors raise `Matrix.Dim`; singular systems raise `Matrix.Singular`.
+Dimension errors raise `Matrix.Dim`; singular/non-SPD systems raise
+`Matrix.Singular`.
 
 ## API summary
 
@@ -78,6 +101,15 @@ Dimension errors raise `Matrix.Dim`; singular systems raise `Matrix.Singular`.
 | `solve : t -> real list -> real list` | Solve `A x = b`. |
 | `inv : t -> t` | Inverse. |
 | `qr : t -> {q, r}` | QR (Gram-Schmidt), `Q*R = A`. |
+| `cholesky : t -> t` | Lower factor `L` of SPD `A = L*L^T`. |
+| `svd : t -> {u, s, vt}` | Singular values/vectors, `A = u*diag(s)*vt`. |
+| `eigSym : t -> {values, vectors}` | Symmetric eigenpairs (ascending values). |
+| `lstsq : t -> real list -> real list` | Least-squares solution via QR. |
+| `pinv : t -> t` | Moore-Penrose pseudoinverse via SVD. |
+| `rank : t -> int` | Numerical rank from the SVD. |
+| `trace : t -> real` | Sum of the diagonal. |
+| `norm1`/`normInf`/`normFro`/`norm2 : t -> real` | 1-, inf-, Frobenius, spectral norms. |
+| `cond : t -> real` | 2-norm condition number. |
 
 ## License
 
