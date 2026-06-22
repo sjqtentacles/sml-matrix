@@ -26,6 +26,7 @@ on **MLton** and **Poly/ML**.
 make test        # build + run the suite under MLton (default)
 make test-poly   # run the suite under Poly/ML
 make all-tests   # run under both
+make example     # build + run the demo
 make clean
 ```
 
@@ -79,6 +80,31 @@ val tr = Matrix.trace a                 (* sum of the diagonal *)
 
 Dimension errors raise `Matrix.Dim`; singular/non-SPD systems raise
 `Matrix.Singular`.
+
+## Example
+
+[`examples/demo.sml`](examples/demo.sml) builds two small fixed integer
+matrices and shows their product, a transpose, the determinant, and the trace.
+Every value is an exact integer, so the demo prints identical output on every
+run and on both compilers. Run it with:
+
+```
+$ make example
+A (2x2):
+  [ 1 2 ]
+  [ 3 4 ]
+B (2x2):
+  [ 5 6 ]
+  [ 7 8 ]
+A * B (2x2):
+  [ 19 22 ]
+  [ 43 50 ]
+transpose A (2x2):
+  [ 1 3 ]
+  [ 2 4 ]
+det A   = ~2
+trace A = 5
+```
 
 ## API summary
 
